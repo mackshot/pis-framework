@@ -1,9 +1,8 @@
 <?php
 
-namespace Pis\Framework\View\TwigExtension\Functions;
+namespace Pis\Framework\Twig\Functions;
 
 use \Pis\Framework\Annotation\TwigFunctionOptions as Options;
-use Pis\Framework\Twig\Functions\BaseFunction;
 
 class EmailEncodeFunction extends BaseFunction
 {

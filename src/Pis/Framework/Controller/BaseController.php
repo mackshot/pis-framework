@@ -41,8 +41,6 @@ abstract class BaseController
         return unserialize($serialized);
     }
 
-    const TEMPLATE_DIR = '/Framework/Twig/Template';
-
     /** @var \Twig_Environment */
     protected $twig;
 
@@ -75,7 +73,7 @@ abstract class BaseController
         $this->twig->addGlobal('_security', $security);
     }
 
-    protected function response($context, BreadCrumb $breadCrumb, $template = null, $templateDir = null, $caller = null) {
+    protected function response($context, BreadCrumb $breadCrumb, $template = null, $caller = null) {
         if ($template === null) {
             if ($caller == null)
                 $caller = $this->determineCaller();
@@ -83,14 +81,8 @@ abstract class BaseController
             $action = $caller['action'];
             $template = substr($controller, 0, -10) . '/' . $action . '.html.twig';
         }
-        if ($templateDir === null)
-            $templateDir = SELF::TEMPLATE_DIR;
         $context['_breadCrumb'] = $breadCrumb->Get();
-        if (file_exists(APP_PATH . $templateDir . '/' . $template)) {
-            return new Response($this->twig->render($template, $context));
-        } else {
-            throw new TemplateNotFoundException("Template '".$template."' not found!");
-        }
+        return new Response($this->twig->render($template, $context));
     }
 
     protected function responsePlain($responseString) {
