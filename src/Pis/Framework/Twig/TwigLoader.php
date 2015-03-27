@@ -107,15 +107,15 @@ class TwigLoader
             }
         }
 
-        $csrfProvider = new DefaultCsrfProvider(SECRET);
+        $csrfTokenManager = new \Symfony\Component\Security\Csrf\CsrfTokenManager(new \Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerator(), new \Symfony\Component\Security\Csrf\TokenStorage\NativeSessionTokenStorage());
         $validator = Validation::createValidator();
 
         $formEngine = new TwigRendererEngine(array('_layout/form_div_layout.html.twig'));
         $formEngine->setEnvironment($twig);
-        $twig->addExtension(new FormExtension(new TwigRenderer($formEngine, $csrfProvider)));
+        $twig->addExtension(new FormExtension(new TwigRenderer($formEngine, $csrfTokenManager)));
 
         $this->formFactory = Forms::createFormFactoryBuilder()
-            ->addExtension(new CsrfExtension($csrfProvider))
+            ->addExtension(new CsrfExtension($csrfTokenManager))
             ->addExtension(new ValidatorExtension($validator))
             ->getFormFactory();
 

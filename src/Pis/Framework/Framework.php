@@ -38,8 +38,10 @@ class Framework implements HttpKernelInterface
     protected $twigLoaderClass;
     /** @var string */
     protected $securityClass;
+    /** @var  string */
+    protected $sessionName;
 
-    public function __construct(ErrorHandler $errorHandler, \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher, UrlMatcher $matcher, ControllerResolver $resolver, \Doctrine\ORM\EntityManager $em, Router\Router $router, \Doctrine\Common\Annotations\Reader $annotationReader, $securityClass, $twigLoaderClass, $debugBar, $sessionTimeout)
+    public function __construct(ErrorHandler $errorHandler, \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher, UrlMatcher $matcher, ControllerResolver $resolver, \Doctrine\ORM\EntityManager $em, Router\Router $router, \Doctrine\Common\Annotations\Reader $annotationReader, $securityClass, $twigLoaderClass, $debugBar, $sessionTimeout, $sessionName)
     {
         $this->debugBar = $debugBar;
         $this->errorHandler = $errorHandler;
@@ -52,6 +54,7 @@ class Framework implements HttpKernelInterface
         $this->sessionTimeout = $sessionTimeout;
         $this->twigLoaderClass = $twigLoaderClass;
         $this->securityClass = $securityClass;
+        $this->sessionName = $sessionName;
     }
 
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
@@ -77,7 +80,7 @@ class Framework implements HttpKernelInterface
                 ->select(function (Entity\Language $language) { return $language->getLocale(); })
                 ->toArray();
             $requestLocale = $request->getPreferredLanguage($languagesAvailableLocale);
-            $session = new Security\Session('inTanken', $requestLocale, $request, $this->sessionTimeout);
+            $session = new Security\Session($this->sessionName, $requestLocale, $request, $this->sessionTimeout);
 
             $security = new $this->securityClass($session, $this->em);
             if (!$this->hasAccess($security, $reflectionClass, $reflectionMethod))
@@ -150,7 +153,7 @@ class Framework implements HttpKernelInterface
         return $actionOptions;
     }
 
-    protected function hasAccess(\incs\inTanken\Security\Security $security, $reflectionClass, $reflectionMethod) {
+    protected function hasAccess(Security\Security $security, $reflectionClass, $reflectionMethod) {
         $classSecurity = $this->annotationReader->getClassAnnotation($reflectionClass, 'Pis\Framework\Annotation\ControllerActionSecurity');
         $methodSecurity = $this->annotationReader->getMethodAnnotation($reflectionMethod, 'Pis\Framework\Annotation\ControllerActionSecurity');
         /** Annotation\ControllerActionSecurity $actionSecurity */
