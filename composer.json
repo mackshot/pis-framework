@@ -38,8 +38,8 @@
     "athari/yalinqo": "dev-master"
   },
   "autoload": {
-    "psr-4": {
-      "Pis\\Framework\\": "pis/framework"
+    "psr-0": {
+      "Pis\\Framework\\": ""
     }
   },
   "minimum-stability": "dev"
