@@ -1,0 +1,49 @@
+{
+  "name": "pis/framework",
+  "type": "library",
+  "description": "P-IS Mini/Simple Web-Framework",
+  "keywords": [
+    "framework",
+    "mini",
+    "simple"
+  ],
+  "homepage": "https://github.com/mackshot/pis-framework",
+  "authors": [
+    {
+      "name": "Markus Pullmann aka Mackshot",
+      "email": "markus.pullmann@gmx.de"
+    }
+  ],
+  "license": "MIT",
+  "require": {
+    "php": ">=5.5.9"
+  },
+  "require-dev": {
+    "doctrine/orm": "~2.4",
+    "symfony/http-kernel": "~2.4",
+    "symfony/routing": "~2.4",
+    "symfony/security": "~2.4",
+    "twig/twig": "~1.6",
+    "leafo/lessphp": "0.4.x-dev",
+    "maximebf/debugbar": "~1.9",
+    "easybook/geshi": "~1.0",
+    "filp/whoops": "~1.1",
+    "symfony/form": "~2.4",
+    "symfony/validator": "~2.4",
+    "symfony/config": "~2.4",
+    "symfony/translation": "~2.4",
+    "symfony/twig-bridge": "~2.4",
+    "swiftmailer/swiftmailer": "~5.2",
+    "tedivm/jshrink": "~1.0",
+    "natxet/CssMin": "~3.0",
+    "electrolinux/phpquery": "~0.9",
+    "athari/yalinqo": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "Pis\\Framework\\": "Pis/Framework"
+    }
+  },
+  "target-dir": "Pis/Framework",
+  "minimum-stability": "dev"
+}

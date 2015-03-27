@@ -1,0 +1,130 @@
+{% extends 'layout_pure.html.twig' %}
+
+{% block title %}Translate{% endblock %}
+
+{% block content %}
+    {% if tokens|length > 0 %}
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>
+                    <select class="domainSelect">
+                        <option value="">All domains</option>
+                        {% for item in domains %}
+                            <option value="{{ item.id }}" {% if item.id == _attributes.domain %}selected="selected"{% endif %}>{{ item.id }}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>Token</th>
+                <th>
+                    <select class="fromSelect">
+                        {% for item in languages %}
+                            <option value="{{ item.id }}" {% if item.id == _attributes.from %}selected="selected"{% endif %}>{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                </th>
+                <th>{{ language.name }}</th>
+            </tr>
+            {% for token in tokens %}
+                <tr class="{{ cycle(['odd', 'even'], loop.index0) }}" token="{{ token['token'].id }}">
+                    <td>{{ token['token'].id }}</td>
+                    <td>{{ token['token'].domain.id }}</td>
+                    <td>{{ token['token'].token }}</td>
+                    <td>
+                        <textarea class="translation" readonly="true">{{ token['otherTranslation'].translation }}</textarea>
+                    </td>
+                    <td>
+                        <textarea class="translation translation-display" readonly="true">{{ token['translation'].translation }}</textarea>
+                        <textarea class="translation translation-editable display-none">{{  token['translation'].translation }}</textarea>
+                        <img src="/image/ajax-loader.gif" class="loader display-none" />
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+    {% include '/_layout/pagination.html.twig' with { 'paginator': paginator } %}
+{% endblock %}
+{% block javascript %}
+    <script type="text/javascript">
+        var translate = {
+            getTranslation: function (token, successAction) {
+                $.ajax({
+                    async: true,
+                    type: 'POST',
+                    url: '{{ path('Language::GetTranslation', { lang: language.id }) }}',
+                    data: { token: token },
+                    dataType: 'text',
+                    success: function (text) {
+                        successAction(text);
+                    }
+                });
+            },
+            setTranslation: function (token, text, successAction) {
+                $.ajax({
+                    async: true,
+                    type: 'POST',
+                    url: '{{ path('Language::SetTranslation', { lang: language.id }) }}',
+                    data: { token: token, text: text },
+                    dataType: 'text',
+                    success: function (text) {
+                        successAction(text);
+                    }
+                })
+            }
+        };
+        $(function () {
+            $("textarea.translation.translation-display").click(function () {
+                var token = $(this).closest("tr").attr("token");
+                var row = $("tr[token='"+token+"']");
+                var edit = row.find("textarea.translation.translation-editable");
+                row.find("textarea.translation.translation-display").addClass('display-none');
+                var loader = row.find("img.loader");
+                loader.removeClass('display-none');
+                translate.getTranslation(token, function (text) {
+                    edit.text(text);
+                    loader.addClass('display-none');
+                    edit.removeClass('display-none');
+                    edit.focus();
+                });
+            });
+
+            $("textarea.translation.translation-editable").blur(function () {
+                var token = $(this).closest("tr").attr("token");
+                var row = $("tr[token='"+token+"']");
+                var display = row.find("textarea.translation.translation-display");
+                var edit = row.find("textarea.translation.translation-editable");
+                var text = edit.val();
+                edit.addClass('display-none');
+                var loader = row.find("img.loader");
+                loader.removeClass('display-none');
+                translate.setTranslation(token, text, function (text) {
+                    display.text(text);
+                    loader.addClass('display-none');
+                    display.removeClass('display-none');
+                });
+            });
+
+            $("select.domainSelect").change(function () {
+                reload($(this).val(), null, null);
+            });
+            $("select.fromSelect").change(function () {
+                reload(null, $(this).val(), null);
+            });
+            $("select.toSelect").change(function () {
+                reload(null, null, $(this).val());
+            });
+        });
+        function reload(newDomain, newFrom, newTo) {
+            var url = '{{ path('Language::Translate', { from: '{from}', to: '{to}', domain: '{domain}' }) }}';
+            url = $.urlBuilder.replace('{domain}', newDomain !== null ? newDomain : '{{ _attributes.domain }}', url);
+            url = $.urlBuilder.replace('{from}', newFrom !== null ? newFrom : '{{ _attributes.from }}', url);
+            url = $.urlBuilder.replace('{to}', newTo !== null ? newTo : '{{ _attributes.to }}', url);
+            var urlDecoder = $.url.parse();
+            if (urlDecoder.params != null)
+                url = $.urlBuilder.addParams(urlDecoder.params, url);
+            if (newDomain === null)
+                url = $.urlBuilder.removePagination(url);
+            location.href = url;
+        }
+    </script>
+{% endblock %}
