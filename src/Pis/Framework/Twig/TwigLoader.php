@@ -18,6 +18,7 @@ use Pis\Framework\Twig\Functions\ElementarFunction;
 use Pis\Framework\Twig\MinifierExtension;
 use Pis\Framework\Twig\RoutingExtension;
 use Pis\Framework\Twig\TranslationExtension;
+use Pis\Framework\View\TwigExtension\Functions\EmailEncodeFunction;
 use Symfony\Bridge\Twig\Extension\FormExtension;
 use Symfony\Bridge\Twig\Form\TwigRenderer;
 use Symfony\Bridge\Twig\Form\TwigRendererEngine;
@@ -78,7 +79,8 @@ class TwigLoader
         $functionClasses = array(
             ElementarFunction::GetClassName(),
             BreadCrumbFunction::GetClassName(),
-            CodeFormatterFunction::GetClassName()
+            CodeFormatterFunction::GetClassName(),
+            EmailEncodeFunction::GetClassName()
         );
         $functionClasses = array_merge($functionClasses, $additionalFunctionClasses);
 
@@ -98,8 +100,9 @@ class TwigLoader
                 if ($options === null)
                     throw new AnnotationMissingException($className . ' ' . $methodName);
 
-                $twig->addFunction($className . $methodName,
-                    new \Twig_Function_Function(
+                $twig->addFunction(
+                    new \Twig_SimpleFunction(
+                        $className . $methodName,
                         '\\' . $class . '::' . $methodName,
                         (array) $options
                     )
