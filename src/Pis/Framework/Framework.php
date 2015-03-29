@@ -36,14 +36,14 @@ class Framework implements HttpKernelInterface
     protected $sessionTimeout;
     /** @var string */
     protected $twigLoaderClass;
-    /** @var \Twig_Loader_Filesystem */
-    protected $twigLoaderFilesystem;
+    /** @var \Twig_Environment */
+    protected $twigEnvironment;
     /** @var string */
     protected $securityClass;
     /** @var  string */
     protected $sessionName;
 
-    public function __construct(ErrorHandler $errorHandler, \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher, UrlMatcher $matcher, ControllerResolver $resolver, \Doctrine\ORM\EntityManager $em, Router\Router $router, \Doctrine\Common\Annotations\Reader $annotationReader, $securityClass, $twigLoaderClass, $twigLoaderFilesystem, $debugBar, $sessionTimeout, $sessionName)
+    public function __construct(ErrorHandler $errorHandler, \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher, UrlMatcher $matcher, ControllerResolver $resolver, \Doctrine\ORM\EntityManager $em, Router\Router $router, \Doctrine\Common\Annotations\Reader $annotationReader, $securityClass, $twigLoaderClass, \Twig_Environment $twigEnvironment, $debugBar, $sessionTimeout, $sessionName)
     {
         $this->debugBar = $debugBar;
         $this->errorHandler = $errorHandler;
@@ -55,7 +55,7 @@ class Framework implements HttpKernelInterface
         $this->annotationReader = $annotationReader;
         $this->sessionTimeout = $sessionTimeout;
         $this->twigLoaderClass = $twigLoaderClass;
-        $this->twigLoaderFilesystem = $twigLoaderFilesystem;
+        $this->twigEnvironment = $twigEnvironment;
         $this->securityClass = $securityClass;
         $this->sessionName = $sessionName;
     }
@@ -98,7 +98,7 @@ class Framework implements HttpKernelInterface
             $translator->setFallbackLocales(array('en_US'));
 
             if ($actionOptions->twig) {
-                $twigLoader = new $this->twigLoaderClass($request, $this->twigLoaderFilesystem, $this->em, $this->router, $this->annotationReader, $translator, $languagesAvailable, $locale, $this->debugBar);
+                $twigLoader = new $this->twigLoaderClass($request, $this->twigEnvironment, $this->em, $this->router, $this->annotationReader, $translator, $languagesAvailable, $locale, $this->debugBar);
                 $controllerObject = $reflectionClass->newInstance($this->em, $security, $this->router, $translator, $twigLoader->getTwig(), $twigLoader->GetFormFactory());
 
                 /** @var Response $response */

@@ -47,7 +47,7 @@ class TwigLoader
     /** @var EntityManager */
     protected $em;
 
-    public function __construct(Request $request, \Twig_Loader_Filesystem $loader, \Twig_Environment $twigEnvironment, EntityManager $em, Router $router, Reader $annotationReader, Translator $translator, $languages, $locale, $debugBar, $additionalFunctionClasses) {
+    public function __construct(Request $request, \Twig_Environment $twigEnvironment, EntityManager $em, Router $router, Reader $annotationReader, Translator $translator, $languages, $locale, $debugBar, $additionalFunctionClasses) {
         $this->em = $em;
         $this->router = $router;
         $this->annotationReader = $annotationReader;
