@@ -110,7 +110,7 @@ class Framework implements HttpKernelInterface
 
                 return $response;
             } else {
-                $controllerObject = $reflectionClass->newInstance($this->em, $this->router, $security, $translator);
+                $controllerObject = $reflectionClass->newInstance($this->em, $security, $this->router, $translator);
 
                 /** @var Response $response */
                 $response = $controllerObject->{$actionName}($arguments[0]);
