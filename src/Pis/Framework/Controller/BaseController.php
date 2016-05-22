@@ -70,8 +70,8 @@ abstract class BaseController
         $this->twig = $twig;
         $this->formFactory = $formFactory;
         $this->breadCrumb = new BreadCrumb($router);
-		if ($twig != null)
-			$this->twig->addGlobal('_security', $security);
+        if ($this->twig != null)
+            $this->twig->addGlobal('_security', $security);
     }
 
     protected function response($context, BreadCrumb $breadCrumb, $template = null, $caller = null) {
