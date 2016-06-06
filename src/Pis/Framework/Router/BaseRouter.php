@@ -22,12 +22,31 @@ class BaseRouter
     /**
      * @param $function Route
      */
-    protected function AddRoute(Route $function) {
+    protected function AddRoute(Route $route) {
         $callers = debug_backtrace();
         $controllerName = array_slice(explode('\\', $callers[1]['class']), -1);
         $controllerName = preg_replace('/Router$/', '', $controllerName[0]);
-        $actionName = preg_replace('/Action$/', '', from($function->getDefault('_controller'))->elementAt(1));
-        $this->routeCollection->add($controllerName . '::' . $actionName, $function);
+        $actionName = preg_replace('/Action$/', '', from($route->getDefault('_controller'))->elementAt(1));
+        $this->routeCollection->add($controllerName . '::' . $actionName, $route);
+    }
+
+    /**
+     * @param $function MultiRoute
+     * @param $routes string[]
+     */
+    protected function AddMultiRoute(MultiRoute $multiRoute) {
+        $controllerName = null;
+        $actionName = null;
+        foreach ($multiRoute->GetRoutes() as $key => $route) {
+            if ($controllerName == null) {
+                $callers = debug_backtrace();
+                $controllerName = array_slice(explode('\\', $callers[1]['class']), -1);
+                $controllerName = preg_replace('/Router$/', '', $controllerName[0]);
+                $actionName = preg_replace('/Action$/', '', from($route->getDefault('_controller'))->elementAt(1));
+            };
+            $postfix = $key == null ? '' : '::' . $key;
+            $this->routeCollection->add($controllerName . '::' . $actionName . $key, $route);
+        }
     }
 
     /**
