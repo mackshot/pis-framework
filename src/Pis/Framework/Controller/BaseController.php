@@ -91,7 +91,9 @@ abstract class BaseController
     }
 
     protected function responseJson($object) {
-        return new Response(json_encode($object));
+        return new Response(json_encode($object), 200, $headers = array(
+            'Content-Type' => 'application/json'
+        ));
     }
 
     protected function determineCaller() {
