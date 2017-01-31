@@ -8,13 +8,16 @@ use Pis\Framework\Router\Route;
 class LanguageRouter extends BaseRouter
 {
 
-    public function __construct() {
-        parent::__construct(LanguageController::GetClassName());
+    public function __construct($controller = null) {
+        if ($controller == null)
+            $controller = LanguageController::GetClassName();
+        parent::__construct($controller);
 
         $this->AddRoute($this->Index());
         $this->AddRoute($this->Add());
         $this->AddRoute($this->Edit());
-        $this->AddRoute($this->Translate());
+        $this->AddRoute($this->TranslateAll());
+        $this->AddRoute($this->TranslateUntranslated());
         $this->AddRoute($this->SetTranslation());
         $this->AddRoute($this->GetTranslation());
         $this->AddRoute($this->TokenAdd());
@@ -39,9 +42,16 @@ class LanguageRouter extends BaseRouter
         );
     }
 
-    public function Translate() {
-        return new Route('/language/translate/from/{from}/to/{to}/{domain}',
-            array('_controller' => array($this->controller, 'TranslateAction'), 'domain' => ''),
+    public function TranslateAll() {
+        return new Route('/language/translate-all/from/{from}/to/{to}/{domain}',
+            array('_controller' => array($this->controller, 'TranslateAllAction'), 'domain' => ''),
+            array('from' => '[^/]+', 'to' => '[^/]+', 'domain' => '[^/]+')
+        );
+    }
+
+    public function TranslateUntranslated() {
+        return new Route('/language/translate-untranslated/from/{from}/to/{to}/{domain}',
+            array('_controller' => array($this->controller, 'TranslateUntranslatedAction'), 'domain' => ''),
             array('from' => '[^/]+', 'to' => '[^/]+', 'domain' => '[^/]+')
         );
     }

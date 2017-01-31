@@ -15,11 +15,11 @@
             <tr class="{{ cycle(['odd', 'even'], loop.index0) }}">
                 <td>{{ language.id }}</td>
                 <td>{{ language.locale }}</td>
-                <td>{{ language.name }}</td>
+                <td>{{ language.name }}{% if language.master == true %} [MASTER]{% endif %}</td>
                 <td>
-                    <a href="{{ path('Language::Translate', { 'from': 1, 'to': language.id }) }}">Show</a>,
+                    <a href="{{ path('Language::TranslateAll', { 'from': masterlanguage.id, 'to': language.id }) }}">Show</a>,
                     {% if (translations[language.id]|length / tokens|length) < 1 %}
-                        <a href="{{ path('Language::Translate', { 'from': 1, 'to': language.id, 'mode': 1 }) }}">Translate</a>,
+                        <a href="{{ path('Language::TranslateUntranslated', { 'from': masterlanguage.id, 'to': language.id }) }}">Translate</a>,
                     {% endif %}
                     <a href="{{ path('Language::Edit', { 'id': language.id}) }}">Edit Language</a>
                 </td>

@@ -39,6 +39,10 @@
                         <img src="/image/ajax-loader.gif" class="loader display-none" />
                     </td>
                 </tr>
+                <tr class="{{ cycle(['odd', 'even'], loop.index0) }} italic small">
+                    <td></td>
+                    <td colspan="4">{{ token['token'].description|nl2br }}</td>
+                </tr>
             {% endfor %}
         </table>
     {% endif %}
@@ -80,8 +84,9 @@
                 row.find("textarea.translation.translation-display").addClass('display-none');
                 var loader = row.find("img.loader");
                 loader.removeClass('display-none');
-                translate.getTranslation(token, function (text) {
-                    edit.text(text);
+                translate.getTranslation(token, function (t) {
+                    edit.text(t);
+                    edit.val(t);
                     loader.addClass('display-none');
                     edit.removeClass('display-none');
                     edit.focus();
@@ -97,8 +102,8 @@
                 edit.addClass('display-none');
                 var loader = row.find("img.loader");
                 loader.removeClass('display-none');
-                translate.setTranslation(token, text, function (text) {
-                    display.text(text);
+                translate.setTranslation(token, text, function (t) {
+                    display.text(t);
                     loader.addClass('display-none');
                     display.removeClass('display-none');
                 });
@@ -115,7 +120,7 @@
             });
         });
         function reload(newDomain, newFrom, newTo) {
-            var url = '{{ path('Language::Translate', { from: '{from}', to: '{to}', domain: '{domain}' }) }}';
+            var url = '{{ path(route, { from: '{from}', to: '{to}', domain: '{domain}' }) }}';
             url = $.urlBuilder.replace('{domain}', newDomain !== null ? newDomain : '{{ _attributes.domain }}', url);
             url = $.urlBuilder.replace('{from}', newFrom !== null ? newFrom : '{{ _attributes.from }}', url);
             url = $.urlBuilder.replace('{to}', newTo !== null ? newTo : '{{ _attributes.to }}', url);

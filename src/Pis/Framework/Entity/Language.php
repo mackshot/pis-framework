@@ -48,4 +48,16 @@ class Language extends BaseEntity
     public function setAvailable($available) {
         $this->available = $available;
     }
+
+    /** var bool @Column(type="boolean", options={"default" = false}) */
+    private $master;
+
+    public function getMaster() {
+        return $this->master;
+    }
+
+    public function setMaster($master) {
+        $this->master = $master;
+    }
+
 }

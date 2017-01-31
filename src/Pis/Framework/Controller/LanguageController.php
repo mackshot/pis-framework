@@ -54,7 +54,13 @@ class LanguageController extends BaseController
             }
         }
         return $this->response(
-            array('languages' => $languages, 'tokens' => $tokens, 'translations' => $translations),
+            array(
+                'languages' => $languages,
+                'tokens' => $tokens,
+                'translations' => $translations,
+                'masterlanguage' => from($languages)->where(function (Entity\Language $l) {
+                    return $l->getMaster() == true;
+                })->first()),
             $this->breadCrumb
         );
     }
@@ -85,7 +91,7 @@ class LanguageController extends BaseController
                 $this->em->flush();
 
                 $laRole = new Entity\Role();
-                $laRole ->setId('la/' . $language->getId());
+                $laRole->setId('la/' . $language->getId());
                 $this->em->persist($laRole);
 
                 /** @var Entity\Repository\RoleRepository $roleRepository */
@@ -155,12 +161,39 @@ class LanguageController extends BaseController
      * @throws ResourceNotFoundException
      * @return Response
      */
-    public function TranslateAction(Request $request)
+    public function TranslateAllAction(Request $request)
+    {
+        $params = $this->translate($request, 0);
+        $params['route'] = 'Language::TranslateAll';
+        return $this->response(
+            $params,
+            $this->breadCrumb,
+            "Language/Translate.html.twig"
+        );
+    }
+
+    /**
+     * @Options(method={"GET"})
+     * @param Request $request
+     * @throws ResourceNotFoundException
+     * @return Response
+     */
+    public function TranslateUntranslatedAction(Request $request)
+    {
+        $params = $this->translate($request, 1);
+        $params['route'] = 'Language::TranslateUntranslated';
+        return $this->response(
+            $params,
+            $this->breadCrumb,
+            "Language/Translate.html.twig"
+        );
+    }
+
+    protected function translate(Request $request, $mode)
     {
         $to = $request->get('to');
         $from = $request->get('from');
         $domain = $request->get('domain');
-        $mode = $request->query->get('mode');
 
         /** @var Entity\Repository\LanguageRepository $languageRepository */
         $languageRepository = $this->em->getRepository(Entity\Language::EntityName());
@@ -172,8 +205,12 @@ class LanguageController extends BaseController
         /** @var Entity\LanguageDomain[] $languageDomains */
         $languageDomains = $languageDomainRepository->findAll();
 
-        $language = from($languages)->where(function (Entity\Language $l) use ($to) { return $l->getId() == $to; })->first();
-        $otherLanguage = from($languages)->where(function (Entity\Language $l) use ($from) { return $l->getId() == $from; })->first();
+        $language = from($languages)->where(function (Entity\Language $l) use ($to) {
+            return $l->getId() == $to;
+        })->first();
+        $otherLanguage = from($languages)->where(function (Entity\Language $l) use ($from) {
+            return $l->getId() == $from;
+        })->first();
 
         $query = "SELECT to, d, t1, t2 ";
         $query .= "FROM " . Entity\LanguageToken::EntityName() . " AS to ";
@@ -214,10 +251,7 @@ class LanguageController extends BaseController
         }
 
         $this->breadCrumb->AddItem("Languages", 'Language::Index');
-        return $this->response(
-            array('language' => $language, 'otherLanguage' => $otherLanguage, 'languages' => $languages, 'paginator' => $paginator, 'tokens' => $tokens, 'domains' => $languageDomains),
-            $this->breadCrumb
-        );
+        return array('language' => $language, 'otherLanguage' => $otherLanguage, 'languages' => $languages, 'paginator' => $paginator, 'tokens' => $tokens, 'domains' => $languageDomains);
     }
 
     /**
@@ -250,9 +284,9 @@ class LanguageController extends BaseController
     {
         $token = $request->get('token');
         $language = $request->get('lang');
-        $text = $request->get('text');
+        $text = trim($request->get('text'));
 
-        if (strlen($text) == 0) return $this->responsePlain("");
+        //if (strlen($text) == 0) return $this->responsePlain("");
 
         /** @var Entity\Repository\LanguageTranslationRepository $languageTranslationRepository */
         $languageTranslationRepository = $this->em->getRepository(Entity\LanguageTranslation::EntityName());
@@ -269,11 +303,17 @@ class LanguageController extends BaseController
         /** @var Entity\LanguageToken $token */
         $token = $languageTokenRepository->find($token);
 
-        if ($translation === null)
-            $translation = new Entity\LanguageTranslation($language, $token, $text);
-        else
-            $translation->setTranslation($text);
-        $this->em->persist($translation);
+        if (strlen($text) > 0){
+            if ($translation === null) {
+                $translation = new Entity\LanguageTranslation($language, $token, $text);
+                $this->em->persist($translation);
+            } else {
+                $translation->setTranslation($text);
+                $this->em->persist($translation);
+            }
+        } else if ($translation !== null) {
+            $this->em->remove($translation);
+        }
         $this->em->flush();
         return $this->responsePlain($text);
     }
@@ -314,7 +354,8 @@ class LanguageController extends BaseController
         );
     }
 
-    private function languageForm($route) {
+    private function languageForm($route)
+    {
         return $this->formFactory->createNamedBuilder('languageForm')
             ->setMethod('POST')
             ->setAction($route)
@@ -344,13 +385,14 @@ class LanguageController extends BaseController
             ->getForm();
     }
 
-    private function tokenForm($route) {
+    private function tokenForm($route)
+    {
         /** @var Entity\Repository\LanguageDomainRepository $languageRepository */
         $languageDomainRepository = $this->em->getRepository(Entity\LanguageDomain::EntityName());
         /** @var Entity\LanguageDomain[] $languageDomains */
         $languageDomains = $languageDomainRepository->findAll();
         $domains = array();
-        foreach($languageDomains as $domain)
+        foreach ($languageDomains as $domain)
             $domains[$domain->getId()] = $domain->getId();
         return $this->formFactory->createNamedBuilder('tokenForm')
             ->setMethod('POST')

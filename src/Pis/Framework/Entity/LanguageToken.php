@@ -42,6 +42,13 @@ class LanguageToken extends BaseEntity
         return $this->token;
     }
 
+    /** @Column(type="string", nullable=true) */
+    private $description;
+
+    public function getDescription() {
+        return $this->description;
+    }
+
     /**
      * @var LanguageTranslation[]
      * @OneToMany(targetEntity="LanguageTranslation", mappedBy="token")
