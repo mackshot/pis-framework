@@ -14,6 +14,7 @@ use Pis\Framework\Annotation\ControllerActionSecurity as Security;
 use Pis\Framework\Entity as Entity;
 use Pis\Framework\Validator\Constraint as Constraint;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Security\Core\Role\Role;
 
 /**
  * @Security(roles={"la", "lac"})
@@ -28,6 +29,8 @@ class LanguageController extends BaseController
      */
     public function IndexAction(Request $request)
     {
+        if (!$this->security->hasRoleStartingWith("lac"))
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException($request->getUri());
         /** @var Entity\Repository\LanguageRepository $languageRepository */
         $languageRepository = $this->em->getRepository(Entity\Language::EntityName());
         /** @var Entity\Language[] $languages */
@@ -72,6 +75,8 @@ class LanguageController extends BaseController
      */
     public function AddAction(Request $request)
     {
+        if (!$this->security->hasRole("lac"))
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException($request->getUri());
         /** @var \Symfony\Component\Form\Form $form */
         $form = $this->languageForm($this->router->ParseRoute('Language::Add'));
         if ($request->getMethod() === 'POST') {
@@ -122,6 +127,8 @@ class LanguageController extends BaseController
      */
     public function EditAction(Request $request)
     {
+        if (!$this->security->hasRole("lac"))
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException($request->getUri());
         /** @var Entity\Repository\LanguageRepository $languageRepository */
         $languageRepository = $this->em->getRepository(Entity\Language::EntityName());
         /** @var Entity\Language $language */
@@ -163,6 +170,8 @@ class LanguageController extends BaseController
      */
     public function TranslateAllAction(Request $request)
     {
+        if (!$this->security->hasRole("lac") && !$this->security->hasRole("lac_lang_" . $request->get('to')))
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException($request->getUri());
         $params = $this->translate($request, 0);
         $params['route'] = 'Language::TranslateAll';
         return $this->response(
@@ -180,6 +189,8 @@ class LanguageController extends BaseController
      */
     public function TranslateUntranslatedAction(Request $request)
     {
+        if (!$this->security->hasRole("lac") && !$this->security->hasRole("lac_lang_" . $request->get('to')))
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException($request->getUri());
         $params = $this->translate($request, 1);
         $params['route'] = 'Language::TranslateUntranslated';
         return $this->response(
@@ -192,6 +203,8 @@ class LanguageController extends BaseController
     protected function translate(Request $request, $mode)
     {
         $to = $request->get('to');
+        if (!$this->security->hasRole("lac") && !$this->security->hasRole("lac_lang_" . $to))
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException($request->getUri());
         $from = $request->get('from');
         $domain = $request->get('domain');
 
@@ -222,6 +235,9 @@ class LanguageController extends BaseController
             $query .= "AND d.id = :domain ";
         if ($mode == 1)
             $query .= "AND t1.translation IS NULL ";
+        $userDomains = $this->allowedDomainsQueryString();
+        if (!empty($userDomains))
+            $query .= "AND d.id IN (".$userDomains.")";
         $query .= "ORDER BY d.id, to.token ASC";
         $query = $this->em->createQuery($query);
         $query->setParameter('l1', $to);
@@ -262,12 +278,24 @@ class LanguageController extends BaseController
      */
     public function GetTranslationAction(Request $request)
     {
-        $token = $request->get('token');
         $lang = $request->get('lang');
+
+        if (!$this->security->hasRole("lac") && !$this->security->hasRole("lac_lang_" . $lang))
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException($request->getUri());
+        $token = $request->get('token');
+
         /** @var Entity\Repository\LanguageTranslationRepository $languageTranslationRepository */
         $languageTranslationRepository = $this->em->getRepository(Entity\LanguageTranslation::EntityName());
         /** @var Entity\LanguageTranslation $translation */
         $translation = $languageTranslationRepository->findOneBy(array('language' => $lang, 'token' => $token));
+
+        $userDomains = $this->allowedDomains();
+        /** @var Entity\Repository\LanguageTokenRepository $languageTokenRepository */
+        $languageTokenRepository = $this->em->getRepository(Entity\LanguageToken::EntityName());
+        /** @var Entity\LanguageToken $token */
+        $token = $languageTokenRepository->find($token);
+        if (!in_array($token->getDomain()->getId(), $userDomains))
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException($request->getUri());
         if ($translation === null)
             return $this->responsePlain("");
         else
@@ -282,11 +310,12 @@ class LanguageController extends BaseController
      */
     public function SetTranslationAction(Request $request)
     {
-        $token = $request->get('token');
         $language = $request->get('lang');
-        $text = trim($request->get('text'));
+        if (!$this->security->hasRole("lac") && !$this->security->hasRole("lac_lang_" . $language))
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException($request->getUri());
 
-        //if (strlen($text) == 0) return $this->responsePlain("");
+        $token = $request->get('token');
+        $text = trim($request->get('text'));
 
         /** @var Entity\Repository\LanguageTranslationRepository $languageTranslationRepository */
         $languageTranslationRepository = $this->em->getRepository(Entity\LanguageTranslation::EntityName());
@@ -298,10 +327,13 @@ class LanguageController extends BaseController
         /** @var Entity\Language $language */
         $language = $languageRepository->find($language);
 
+        $userDomains = $this->allowedDomains();
         /** @var Entity\Repository\LanguageTokenRepository $languageTokenRepository */
         $languageTokenRepository = $this->em->getRepository(Entity\LanguageToken::EntityName());
         /** @var Entity\LanguageToken $token */
         $token = $languageTokenRepository->find($token);
+        if (!in_array($token->getDomain()->getId(), $userDomains))
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException($request->getUri());
 
         if (strlen($text) > 0){
             if ($translation === null) {
@@ -325,6 +357,8 @@ class LanguageController extends BaseController
      */
     public function TokenAddAction(Request $request)
     {
+        if (!$this->security->hasRole("lac"))
+            throw new \Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException($request->getUri());
         /** @var \Symfony\Component\Form\Form $form */
         $form = $this->tokenForm($this->router->ParseRoute('Language::TokenAdd'));
         if ($request->getMethod() === 'POST') {
@@ -413,6 +447,37 @@ class LanguageController extends BaseController
                 'label' => 'Save',
             ))
             ->getForm();
+    }
+
+    /** @return string[] */
+    private function allowedDomains() {
+        $domains = array();
+        $roles = $this->security->getRolesString();
+        /** @var Entity\Role $role */
+        foreach ($roles as $role) {
+            if (preg_match("/^lac_domain_/", $role)) {
+                $domains[] = str_replace("lac_domain_", "", $role);
+            }
+        }
+
+        if (empty($domains)) {
+            /** @var Entity\Repository\LanguageDomainRepository $languageDomainRepository */
+            $languageDomainRepository = $this->em->getRepository(Entity\LanguageDomain::EntityName());
+            /** @var Entity\LanguageDomain[] $_domains */
+            $_domains = $languageDomainRepository->findAll();
+            foreach ($_domains as $d) {
+                $domains[] = $d->getId();
+            }
+        }
+
+        return $domains;
+    }
+
+    private function allowedDomainsQueryString() {
+        $domains = $this->allowedDomains();
+        foreach ($domains as $d => $domain)
+            $domains[$d] = "'" . $domain . "'";
+        return implode(',', $domains);
     }
 
 }

@@ -17,11 +17,15 @@
                 <td>{{ language.locale }}</td>
                 <td>{{ language.name }}{% if language.master == true %} [MASTER]{% endif %}</td>
                 <td>
-                    <a href="{{ path('Language::TranslateAll', { 'from': masterlanguage.id, 'to': language.id }) }}">Show</a>,
-                    {% if (translations[language.id]|length / tokens|length) < 1 %}
-                        <a href="{{ path('Language::TranslateUntranslated', { 'from': masterlanguage.id, 'to': language.id }) }}">Translate</a>,
+                    {% if _security.HasRole('lac') or _security.HasRole('lac_lang_' . language.id) %}
+                        <a href="{{ path('Language::TranslateAll', { 'from': masterlanguage.id, 'to': language.id }) }}">All tokens</a>,
+                        {#{% if (translations[language.id]|length / tokens|length) < 1 %}#}
+                            <a href="{{ path('Language::TranslateUntranslated', { 'from': masterlanguage.id, 'to': language.id }) }}">Untranslated tokens</a>,
+                        {#{% endif %}#}
                     {% endif %}
-                    <a href="{{ path('Language::Edit', { 'id': language.id}) }}">Edit Language</a>
+                    {% if _security.HasRole('lac') %}
+                        <a href="{{ path('Language::Edit', { 'id': language.id}) }}">Edit Language</a>
+                    {% endif %}
                 </td>
                 <td style="text-align: right;">
                     {{ ((translations[language.id]|length / tokens|length) * 100)|number_format(2) }}%
@@ -29,8 +33,10 @@
             </tr>
         {% endfor %}
     </table>
-    <div class="align-{{ _right }}">
-        <a href="{{ path('Language::Add') }}">Add Language</a>,
-        <a href="{{ path('Language::TokenAdd') }}">Add Token</a>
-    </div>
+    {% if _security.HasRole('lac') %}
+        <div class="align-{{ _right }}">
+            <a href="{{ path('Language::Add') }}">Add Language</a>,
+            <a href="{{ path('Language::TokenAdd') }}">Add Token</a>
+        </div>
+    {% endif %}
 {% endblock %}

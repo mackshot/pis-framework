@@ -14,6 +14,11 @@ abstract class Security
 
     abstract public function hasRole($role);
 
+    abstract public function hasRoleStartingWith($role);
+
+    /** @return string[] */
+    abstract public function getRolesString();
+
     abstract public function getUser();
 
 }
