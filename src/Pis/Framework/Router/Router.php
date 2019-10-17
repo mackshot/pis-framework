@@ -16,7 +16,7 @@ class Router
 
     public function __construct($routeCollection) {
         $this->routeCollection = $routeCollection;
-        $this->urlGenerator = new UrlGenerator($this->routeCollection, new RequestContext('', '', $_SERVER['SERVER_NAME']));
+        $this->urlGenerator = new UrlGenerator($this->routeCollection, new RequestContext('', '', $_SERVER['SERVER_NAME'], $_SERVER['SERVER_NAME']));
     }
 
     public function AddRouter(BaseRouter $router) {
