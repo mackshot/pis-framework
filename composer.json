@@ -33,7 +33,7 @@
     "symfony/twig-bridge": "~2.4",
     "swiftmailer/swiftmailer": "~5.2",
     "tedivm/jshrink": "~1.0",
-    "natxet/CssMin": "~3.0",
+    "natxet/cssmin": "~3.0",
     "electrolinux/phpquery": "~0.9",
     "athari/yalinqo": "~2"
   },
