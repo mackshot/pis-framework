@@ -293,7 +293,7 @@ class LanguageController extends BaseController
             /** @var Entity\Repository\LanguageTokenRepository $languageTokenRepository */
             $languageTokenRepository = $this->em->getRepository(Entity\LanguageToken::EntityName());
             /** @var Entity\LanguageToken $token */
-            $token = $languageTokenRepository->findOneBy(array('token' => $data['token'], 'domain' => $data{'domain'}));
+            $token = $languageTokenRepository->findOneBy(array('token' => $data['token'], 'domain' => $data['domain']));
             /** @var Entity\Repository\LanguageDomainRepository $languageRepository */
             $languageDomainRepository = $this->em->getRepository(Entity\LanguageDomain::EntityName());
             /** @var Entity\LanguageDomain[] $ldomain */
