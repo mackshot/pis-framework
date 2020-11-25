@@ -37,13 +37,13 @@ class TranslationExtension extends \Symfony\Bridge\Twig\Extension\TranslationExt
     public function getFilters()
     {
         return array(
-            new \Twig_SimpleFilter('trans', array($this, 'trans')),
-            new \Twig_SimpleFilter('transplural', array($this, 'transplural')),
-            new \Twig_SimpleFilter('transchoice', array($this, 'transchoice')),
+            new \Twig\TwigFilter('trans', array($this, 'trans')),
+            new \Twig\TwigFilter('transplural', array($this, 'transplural')),
+            new \Twig\TwigFilter('transchoice', array($this, 'transchoice')),
         );
     }
 
-    public function trans($message, array $arguments = array(), $domain = null, $locale = null)
+    public function trans($message, array $arguments = array(), $domain = null, $locale = null, $count = null)
     {
         if (null === $domain) {
             $domain = 'general';

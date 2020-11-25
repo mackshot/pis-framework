@@ -2,12 +2,14 @@
 
 namespace Pis\Framework\Twig;
 
+use Twig\Extension\AbstractExtension;
+
 if (!defined('ENT_SUBSTITUTE')) {
     // use 0 as hhvm does not support several flags yet
     define('ENT_SUBSTITUTE', 0);
 }
 
-class FormatExtension extends \Twig_Extension
+class FormatExtension extends AbstractExtension
 {
     protected $dateFormats = array('F j, Y', 'F j, Y H:i', '%d days');
     protected $numberFormat = array(0, '.', ',');
@@ -111,7 +113,7 @@ class FormatExtension extends \Twig_Extension
     public function getFilters()
     {
         return array(
-            new \Twig_SimpleFilter('datetime', function(\Twig_Environment $env, $date, $format = null, $timezone = null)
+            new \Twig\TwigFilter('datetime', function(\Twig_Environment $env, $date, $format = null, $timezone = null)
                 {
                     $formats = $env->getExtension('format')->getDateFormat();
                     $format = $formats[1];

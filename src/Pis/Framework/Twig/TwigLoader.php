@@ -84,7 +84,7 @@ class TwigLoader
                     throw new AnnotationMissingException($className . ' ' . $methodName);
 
                 $twig->addFunction(
-                    new \Twig\SimpleFunction(
+                    new \Twig\TwigFunction(
                         $className . $methodName,
                         '\\' . $class . '::' . $methodName,
                         (array) $options
@@ -97,8 +97,7 @@ class TwigLoader
         $validator = Validation::createValidator();
 
         $formEngine = new TwigRendererEngine(array('_layout/form_div_layout.html.twig'), $twig);
-        $twig->addExtension(new FormExtension(new TwigRenderer($formEngine, $csrfTokenManager)));
-
+        $twig->addExtension(new FormExtension());
         $this->formFactory = Forms::createFormFactoryBuilder()
             ->addExtension(new CsrfExtension($csrfTokenManager))
             ->addExtension(new ValidatorExtension($validator))
@@ -110,12 +109,12 @@ class TwigLoader
         $twig->addExtension(new RoutingExtension($this->router->urlGenerator));
         $twig->addExtension(new MinifierExtension());
         /** @var \Twig\Extension\CoreExtension $twigCore */
-        $twigCore = $twig->getExtension('core');
+        $twigCore = $twig->getExtension('Twig\Extension\CoreExtension');
         $twigCore->setDateFormat($_ENV['LOCALE']['FORMAT']['date'], '%d');
         $twigCore->setTimezone($_ENV['LOCALE']['timezone']);
         $twigCore->setNumberFormat(0, $translator->trans('number_separatorDecimal', array(), 'format'), $translator->trans('number_separatorThousands', array(), 'format'));
         /** @var FormatExtension $twigFormat */
-        $twigFormat = $twig->getExtension('format');
+        $twigFormat = $twig->getExtension('Pis\Framework\Twig\FormatExtension');
         $twigFormat->setDateFormat($_ENV['LOCALE']['FORMAT']['date'], $_ENV['LOCALE']['FORMAT']['datetime'], '%d');
 
         $this->twig = $twig;

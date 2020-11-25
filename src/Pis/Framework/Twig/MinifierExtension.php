@@ -4,8 +4,9 @@ namespace Pis\Framework\Twig;
 
 use JShrink\Minifier;
 use Pis\Framework\Twig\Parsers\MinJsTokenParser;
+use Twig\Extension\AbstractExtension;
 
-class MinifierExtension extends \Twig_Extension
+class MinifierExtension extends AbstractExtension
 {
     /**
      * Returns the name of the extension.
@@ -35,7 +36,7 @@ class MinifierExtension extends \Twig_Extension
     public function getFilters()
     {
         return array(
-            new \Twig_SimpleFilter('minjs', array($this, 'minjs')),
+            new \Twig\TwigFilter('minjs', array($this, 'minjs')),
         );
     }
 
