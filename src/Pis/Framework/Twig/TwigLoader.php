@@ -2,8 +2,6 @@
 
 namespace Pis\Framework\Twig;
 
-use DebugBar\Bridge\Twig\TraceableTwigEnvironment;
-use DebugBar\Bridge\Twig\TwigCollector;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\EntityManager;
 use Pis\Framework\Annotation\TwigFunctionOptions;
@@ -38,34 +36,19 @@ class TwigLoader
     protected $router;
     /** @var Reader */
     protected $annotationReader;
-    /** @var \DebugBar\DebugBar|null */
-    protected $debugBar;
-    /** @var \DebugBar\JavascriptRenderer|null */
-    protected $debugBarRenderer = null;
     /** @var \Symfony\Component\Form\FormFactory */
     protected $formFactory;
     /** @var EntityManager */
     protected $em;
 
-    public function __construct(Request $request, \Twig\Environment $twigEnvironment, EntityManager $em, Router $router, Reader $annotationReader, Translator $translator, $languages, $locale, $debugBar, $additionalFunctionClasses) {
+    public function __construct(Request $request, \Twig\Environment $twigEnvironment, EntityManager $em, Router $router, Reader $annotationReader, Translator $translator, $languages, $locale, $additionalFunctionClasses) {
         $this->em = $em;
         $this->router = $router;
         $this->annotationReader = $annotationReader;
-        $this->debugBar = $debugBar;
-        if ($this->debugBar !== null)
-            $this->debugBarRenderer = $this->debugBar->getJavascriptRenderer('/vendor/debugbar');
-
-        if ($this->debugBar !== null) {
-            $twig = new TraceableTwigEnvironment($twigEnvironment, $this->debugBar['time']);
-            $this->debugBar->addCollector(new TwigCollector($twig));
-        } else {
-            $twig = $twigEnvironment;
-        }
-
+        $twig = $twigEnvironment;
         $twig->addGlobal('_develop', DEVELOP);
         $twig->addGlobal('_left', 'left');
         $twig->addGlobal('_right', 'right');
-        $twig->addGlobal('_debugBar', $this->debugBarRenderer);
         $twig->addGlobal('_translator', $translator);
         $twig->addGlobal('_languages', $languages);
         $twig->addGlobal('_locale', $locale);
@@ -140,10 +123,6 @@ class TwigLoader
 
     public function getTwig() {
         return $this->twig;
-    }
-
-    public function GetDebugRenderer() {
-        return $this->debugBarRenderer;
     }
 
     public function GetFormFactory() {

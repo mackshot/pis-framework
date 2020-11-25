@@ -18,8 +18,6 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class Framework implements HttpKernelInterface
 {
-    /** @var bool */
-    protected $debugBar;
     /** @var ErrorHandler  */
     protected $errorHandler;
     /** @var \Symfony\Component\EventDispatcher\EventDispatcher  */
@@ -47,9 +45,8 @@ class Framework implements HttpKernelInterface
     /** @var  string */
     protected $sessionName;
 
-    public function __construct(ErrorHandler $errorHandler, \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher, UrlMatcher $matcher, ControllerResolver $controllerResolver, ArgumentResolver $argumentResolver, \Doctrine\ORM\EntityManager $em, Router\Router $router, \Doctrine\Common\Annotations\Reader $annotationReader, $securityClass, $twigLoaderClass, \Twig\Environment $twigEnvironment, $debugBar, $sessionTimeout, $sessionName)
+    public function __construct(ErrorHandler $errorHandler, \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher, UrlMatcher $matcher, ControllerResolver $controllerResolver, ArgumentResolver $argumentResolver, \Doctrine\ORM\EntityManager $em, Router\Router $router, \Doctrine\Common\Annotations\Reader $annotationReader, $securityClass, $twigLoaderClass, \Twig\Environment $twigEnvironment, $sessionTimeout, $sessionName)
     {
-        $this->debugBar = $debugBar;
         $this->errorHandler = $errorHandler;
         $this->dispatcher = $dispatcher;
         $this->matcher = $matcher;
