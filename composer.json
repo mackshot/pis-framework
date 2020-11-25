@@ -35,7 +35,7 @@
     "leafo/lessphp": "~0.5",
     "maximebf/debugbar": "~1.9",
     "easybook/geshi": "~1.0",
-    "filp/whoops": "~1.1",
+    "filp/whoops": "2.9.*",
     "swiftmailer/swiftmailer": "~5.2",
     "tedivm/jshrink": "~1.0",
     "natxet/cssmin": "~3.0",
