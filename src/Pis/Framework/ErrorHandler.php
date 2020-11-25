@@ -31,7 +31,7 @@ class ErrorHandler
     }
 
     public function handle($exception) {
-        $output = $this->handleException($exception);
+        $output = $this->run->handleException($exception);
         if (!$this->send && self::$lastErrorMail < time() - 100)
             $this->sendMail($output);
     }
