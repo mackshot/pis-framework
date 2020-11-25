@@ -36,14 +36,14 @@ class Framework implements HttpKernelInterface
     protected $sessionTimeout;
     /** @var string */
     protected $twigLoaderClass;
-    /** @var \Twig_Environment */
+    /** @var \Twig\Environment */
     protected $twigEnvironment;
     /** @var string */
     protected $securityClass;
     /** @var  string */
     protected $sessionName;
 
-    public function __construct(ErrorHandler $errorHandler, \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher, UrlMatcher $matcher, ControllerResolver $resolver, \Doctrine\ORM\EntityManager $em, Router\Router $router, \Doctrine\Common\Annotations\Reader $annotationReader, $securityClass, $twigLoaderClass, \Twig_Environment $twigEnvironment, $debugBar, $sessionTimeout, $sessionName)
+    public function __construct(ErrorHandler $errorHandler, \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher, UrlMatcher $matcher, ControllerResolver $resolver, \Doctrine\ORM\EntityManager $em, Router\Router $router, \Doctrine\Common\Annotations\Reader $annotationReader, $securityClass, $twigLoaderClass, \Twig\Environment $twigEnvironment, $debugBar, $sessionTimeout, $sessionName)
     {
         $this->debugBar = $debugBar;
         $this->errorHandler = $errorHandler;
