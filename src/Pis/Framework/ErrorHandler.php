@@ -5,8 +5,10 @@ namespace Pis\Framework;
 use Pis\Framework\Swift\Message;
 use Whoops\Run;
 
-class ErrorHandler extends Run
+class ErrorHandler
 {
+
+    public Run $run;
 
     static $lastErrorMail = 0;
 
@@ -22,8 +24,10 @@ class ErrorHandler extends Run
         $this->sender = $sender;
         $this->receiverMail = $receiverMail;
         $this->receiverName = $receiverName;
-        $this->sendOutput = $this->send;
-        $this->allowQuit = $this->send;
+
+        $this->run = new Run();
+        $this->run->writeToOutput($this->send);
+        $this->run->allowQuit($this->send);
     }
 
     public function handle($exception) {
