@@ -3,6 +3,7 @@
 namespace Pis\Framework\Twig;
 
 use Twig\Extension\AbstractExtension;
+use Twig\TokenParser\TokenParserInterface;
 
 if (!defined('ENT_SUBSTITUTE')) {
     // use 0 as hhvm does not support several flags yet
@@ -97,7 +98,7 @@ class FormatExtension extends AbstractExtension
     /**
      * Returns the token parser instance to add to the existing list.
      *
-     * @return \Twig_TokenParser[] An array of Twig_TokenParser instances
+     * @return \Twig\Tokenparser\TokenParserInterface[] An array of Twig_TokenParser instances
      */
     public function getTokenParsers()
     {
@@ -113,7 +114,7 @@ class FormatExtension extends AbstractExtension
     public function getFilters()
     {
         return array(
-            new \Twig\TwigFilter('datetime', function(\Twig_Environment $env, $date, $format = null, $timezone = null)
+            new \Twig\TwigFilter('datetime', function(\Twig\Environment $env, $date, $format = null, $timezone = null)
                 {
                     $formats = $env->getExtension('format')->getDateFormat();
                     $format = $formats[1];
