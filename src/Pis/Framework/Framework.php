@@ -7,7 +7,9 @@ use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
@@ -25,7 +27,9 @@ class Framework implements HttpKernelInterface
     /** @var UrlMatcher  */
     protected $matcher;
     /** @var ControllerResolver  */
-    protected $resolver;
+    protected $controllerResolver;
+    /** @var ArgumentResolver */
+    protected $argumentResolver;
     /** @var \Doctrine\ORM\EntityManager  */
     protected $em;
     /** @var Router\Router  */
@@ -43,13 +47,14 @@ class Framework implements HttpKernelInterface
     /** @var  string */
     protected $sessionName;
 
-    public function __construct(ErrorHandler $errorHandler, \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher, UrlMatcher $matcher, ControllerResolver $resolver, \Doctrine\ORM\EntityManager $em, Router\Router $router, \Doctrine\Common\Annotations\Reader $annotationReader, $securityClass, $twigLoaderClass, \Twig\Environment $twigEnvironment, $debugBar, $sessionTimeout, $sessionName)
+    public function __construct(ErrorHandler $errorHandler, \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher, UrlMatcher $matcher, ControllerResolver $controllerResolver, ArgumentResolver $argumentResolver, \Doctrine\ORM\EntityManager $em, Router\Router $router, \Doctrine\Common\Annotations\Reader $annotationReader, $securityClass, $twigLoaderClass, \Twig\Environment $twigEnvironment, $debugBar, $sessionTimeout, $sessionName)
     {
         $this->debugBar = $debugBar;
         $this->errorHandler = $errorHandler;
         $this->dispatcher = $dispatcher;
         $this->matcher = $matcher;
-        $this->resolver = $resolver;
+        $this->controllerResolver = $controllerResolver;
+        $this->argumentResolver = $argumentResolver;
         $this->em = $em;
         $this->router = $router;
         $this->annotationReader = $annotationReader;
@@ -64,10 +69,10 @@ class Framework implements HttpKernelInterface
     {
         try {
             $request->attributes->add($this->matcher->match($request->getPathInfo()));
-            $controllerWithAction = $this->resolver->getController($request);
+            $controllerWithAction = $this->controllerResolver->getController($request);
             $controllerName = $controllerWithAction[0];
             $actionName = $controllerWithAction[1];
-            $arguments = $this->resolver->getArguments($request, $controllerWithAction);
+            $arguments = $this->argumentResolver->getArguments($request, $controllerWithAction);
             $reflectionClass = new \ReflectionClass($controllerName);
             $reflectionMethod = new \ReflectionMethod($controllerName, $actionName);
 
