@@ -100,7 +100,7 @@ class Framework implements HttpKernelInterface
             $translator->setFallbackLocales(array('en_US'));
 
             if ($actionOptions->twig) {
-                $twigLoader = new $this->twigLoaderClass($request, $this->twigEnvironment, $this->em, $this->router, $this->annotationReader, $translator, $languagesAvailable, $locale, $this->debugBar);
+                $twigLoader = new $this->twigLoaderClass($request, $this->twigEnvironment, $this->em, $this->router, $this->annotationReader, $translator, $languagesAvailable, $locale);
                 $controllerObject = $reflectionClass->newInstance($this->em, $security, $this->router, $translator, $twigLoader->getTwig(), $twigLoader->GetFormFactory());
 
                 /** @var Response $response */
