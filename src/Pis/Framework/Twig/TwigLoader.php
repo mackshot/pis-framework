@@ -47,7 +47,7 @@ class TwigLoader
     /** @var EntityManager */
     protected $em;
 
-    public function __construct(Request $request, \Twig_Environment $twigEnvironment, EntityManager $em, Router $router, Reader $annotationReader, Translator $translator, $languages, $locale, $debugBar, $additionalFunctionClasses) {
+    public function __construct(Request $request, \Twig\Environment $twigEnvironment, EntityManager $em, Router $router, Reader $annotationReader, Translator $translator, $languages, $locale, $debugBar, $additionalFunctionClasses) {
         $this->em = $em;
         $this->router = $router;
         $this->annotationReader = $annotationReader;
@@ -101,7 +101,7 @@ class TwigLoader
                     throw new AnnotationMissingException($className . ' ' . $methodName);
 
                 $twig->addFunction(
-                    new \Twig_SimpleFunction(
+                    new \Twig\SimpleFunction(
                         $className . $methodName,
                         '\\' . $class . '::' . $methodName,
                         (array) $options
@@ -113,8 +113,7 @@ class TwigLoader
         $csrfTokenManager = new \Symfony\Component\Security\Csrf\CsrfTokenManager(new \Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerator(), new \Symfony\Component\Security\Csrf\TokenStorage\NativeSessionTokenStorage());
         $validator = Validation::createValidator();
 
-        $formEngine = new TwigRendererEngine(array('_layout/form_div_layout.html.twig'));
-        $formEngine->setEnvironment($twig);
+        $formEngine = new TwigRendererEngine(array('_layout/form_div_layout.html.twig'), $twig);
         $twig->addExtension(new FormExtension(new TwigRenderer($formEngine, $csrfTokenManager)));
 
         $this->formFactory = Forms::createFormFactoryBuilder()
@@ -122,12 +121,12 @@ class TwigLoader
             ->addExtension(new ValidatorExtension($validator))
             ->getFormFactory();
 
-        $twig->addExtension(new \Twig_Extension_Debug());
+        $twig->addExtension(new \Twig\Extension\DebugExtension());
         $twig->addExtension(new FormatExtension());
         $twig->addExtension(new TranslationExtension($translator));
         $twig->addExtension(new RoutingExtension($this->router->urlGenerator));
         $twig->addExtension(new MinifierExtension());
-        /** @var \Twig_Extension_Core $twigCore */
+        /** @var \Twig\Extension\CoreExtension $twigCore */
         $twigCore = $twig->getExtension('core');
         $twigCore->setDateFormat($_ENV['LOCALE']['FORMAT']['date'], '%d');
         $twigCore->setTimezone($_ENV['LOCALE']['timezone']);
