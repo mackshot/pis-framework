@@ -98,7 +98,7 @@ class FormatExtension extends AbstractExtension
     /**
      * Returns the token parser instance to add to the existing list.
      *
-     * @return \Twig\Tokenparser\TokenParserInterface[] An array of Twig_TokenParser instances
+     * @return \Twig\TokenParser\TokenParserInterface[] An array of Twig\TokenParser instances
      */
     public function getTokenParsers()
     {
@@ -176,7 +176,7 @@ class FormatExtension extends AbstractExtension
      *   {{ post.published_at|date("m/d/Y") }}
      * </pre>
      *
-     * @param \Twig_Environment             $env      A Twig_Environment instance
+     * @param \Twig\Environment             $env      A Twig\Environment instance
      * @param \DateTime|string $date     A date
      * @param string                       $format   A format
      * @param \DateTimeZone|string          $timezone A timezone

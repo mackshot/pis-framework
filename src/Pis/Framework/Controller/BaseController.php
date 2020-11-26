@@ -41,7 +41,7 @@ abstract class BaseController
         return unserialize($serialized);
     }
 
-    /** @var \Twig_Environment */
+    /** @var \Twig\Environment */
     protected $twig;
 
     /** @var EntityManager */

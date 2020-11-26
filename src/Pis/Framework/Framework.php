@@ -132,7 +132,7 @@ class Framework implements HttpKernelInterface
             return new Response('Not Found', 404);
         } catch (MethodNotAllowedException $e) {
             return new Response('Method Not Allowed', 405);
-        } catch (\Twig_Error_Runtime $e) {
+        } catch (\Twig\Error\RuntimeError $e) {
             if ($this->errorHandler !== null)
                 $this->errorHandler->handle($e);
             return new Response('An error occurred', 500);
