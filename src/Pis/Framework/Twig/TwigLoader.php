@@ -4,7 +4,6 @@ namespace Pis\Framework\Twig;
 
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\EntityManager;
-use JShrink\Minifier;
 use Pis\Framework\Annotation\TwigFunctionOptions;
 use Pis\Framework\Exception\AnnotationMissingException;
 use Pis\Framework\Router\Router;
@@ -27,7 +26,6 @@ use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 use Symfony\Component\Form\Forms;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Validation;
-use Twig\TwigFilter;
 
 class TwigLoader
 {
@@ -90,7 +88,7 @@ class TwigLoader
                     new \Twig\TwigFunction(
                         $className . $methodName,
                         '\\' . $class . '::' . $methodName,
-                        (array)$options
+                        (array) $options
                     )
                 );
             }
@@ -110,14 +108,7 @@ class TwigLoader
         $twig->addExtension(new FormatExtension());
         $twig->addExtension(new TranslationExtension($translator));
         $twig->addExtension(new RoutingExtension($this->router->urlGenerator));
-
-        $twig->addFilter(new TwigFilter("minjs", function ($message) {
-            $message = strip_tags($message);
-            $message = Minifier::minify($message, array('flaggedComments' => false));
-            $message = '<script type="text/javascript">' . $message . '</script>';
-            return $message;
-        }));
-
+        $twig->addExtension(new MinifierExtension());
         /** @var \Twig\Extension\CoreExtension $twigCore */
         $twigCore = $twig->getExtension('Twig\Extension\CoreExtension');
         $twigCore->setDateFormat($_ENV['LOCALE']['FORMAT']['date'], '%d');
