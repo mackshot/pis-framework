@@ -116,7 +116,7 @@ class FormatExtension extends AbstractExtension
         return array(
             new \Twig\TwigFilter('datetime', function(\Twig\Environment $env, $date, $format = null, $timezone = null)
                 {
-                    $formats = $env->getExtension('format')->getDateFormat();
+                    $formats = $env->getExtension('Pis\Framework\Twig\FormatExtension')->getDateFormat();
                     $format = $formats[1];
 
                     return twig_date_converter($env, $date, $timezone)->format($format);
@@ -168,20 +168,4 @@ class FormatExtension extends AbstractExtension
     {
         return 'format';
     }
-
-    /**
-     * Converts a date to the given format.
-     *
-     * <pre>
-     *   {{ post.published_at|date("m/d/Y") }}
-     * </pre>
-     *
-     * @param \Twig\Environment             $env      A Twig\Environment instance
-     * @param \DateTime|string $date     A date
-     * @param string                       $format   A format
-     * @param \DateTimeZone|string          $timezone A timezone
-     *
-     * @return string The formatted date
-     */
-
 }
