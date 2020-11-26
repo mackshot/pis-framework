@@ -98,6 +98,11 @@ class TwigLoader
         $validator = Validation::createValidator();
 
         $formEngine = new TwigRendererEngine(array('_layout/form_div_layout.html.twig'), $twig);
+        $twig->addRuntimeLoader(new \Twig\RuntimeLoader\FactoryRuntimeLoader([
+            \Symfony\Component\Form\FormRenderer::class => function () use ($formEngine, $csrfTokenManager) {
+                return new \Symfony\Component\Form\FormRenderer($formEngine, $csrfTokenManager);
+            },
+        ]));
         $twig->addExtension(new FormExtension());
         $this->formFactory = Forms::createFormFactoryBuilder()
             ->addExtension(new CsrfExtension($csrfTokenManager))
