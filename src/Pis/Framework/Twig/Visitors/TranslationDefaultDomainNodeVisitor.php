@@ -5,6 +5,8 @@ namespace Pis\Framework\Twig\Visitors;
 use Symfony\Bridge\Twig\Node\TransNode;
 use Symfony\Bridge\Twig\Node\TransDefaultDomainNode;
 use Symfony\Bridge\Twig\NodeVisitor\Scope;
+use Twig\Environment;
+use Twig\Node\Node;
 
 class TranslationDefaultDomainNodeVisitor implements \Twig\NodeVisitor\NodeVisitorInterface
 {
@@ -22,10 +24,7 @@ class TranslationDefaultDomainNodeVisitor implements \Twig\NodeVisitor\NodeVisit
         $this->scope = new Scope();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function enterNode(\Twig\Node\Node $node, \Twig\Environment $env)
+    public function enterNode(Node $node, Environment $env): Node
     {
         if ($node instanceof \Twig\Node\BlockNode || $node instanceof \Twig\Node\ModuleNode) {
             $this->scope = $this->scope->enter();
@@ -68,13 +67,10 @@ class TranslationDefaultDomainNodeVisitor implements \Twig\NodeVisitor\NodeVisit
         return $node;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function leaveNode(\Twig\NodeInterface $node, \Twig\Environment $env)
+    public function leaveNode(Node $node, Environment $env): ?Node
     {
         if ($node instanceof TransDefaultDomainNode) {
-            return false;
+            return null;
         }
 
         if ($node instanceof \Twig\Node\BlockNode || $node instanceof \Twig\Node\ModuleNode) {
