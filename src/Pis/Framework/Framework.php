@@ -3,6 +3,7 @@
 namespace Pis\Framework;
 
 use Pis\Framework\Exception\LogoutException;
+use Pis\Framework\Twig\TwigLoader;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\HttpFoundation\File\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,21 +19,21 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class Framework implements HttpKernelInterface
 {
-    /** @var ErrorHandler  */
+    /** @var ErrorHandler */
     protected $errorHandler;
-    /** @var \Symfony\Component\EventDispatcher\EventDispatcher  */
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcher */
     protected $dispatcher;
-    /** @var UrlMatcher  */
+    /** @var UrlMatcher */
     protected $matcher;
-    /** @var ControllerResolver  */
+    /** @var ControllerResolver */
     protected $controllerResolver;
     /** @var ArgumentResolver */
     protected $argumentResolver;
-    /** @var \Doctrine\ORM\EntityManager  */
+    /** @var \Doctrine\ORM\EntityManager */
     protected $em;
-    /** @var Router\Router  */
+    /** @var Router\Router */
     protected $router;
-    /** @var \Doctrine\Common\Annotations\Reader  */
+    /** @var \Doctrine\Common\Annotations\Reader */
     protected $annotationReader;
     /** @var int */
     protected $sessionTimeout;
@@ -78,11 +79,17 @@ class Framework implements HttpKernelInterface
 
             $translationManager = new Translation\TranslationManager($this->em);
             $languagesAvailable = from($translationManager->getLanguages())
-                ->where(function (Entity\Language $language) { return $language->getAvailable() == 1; })
-                ->orderBy(function (Entity\Language $language) { return $language->getName(); } )
+                ->where(function (Entity\Language $language) {
+                    return $language->getAvailable() == 1;
+                })
+                ->orderBy(function (Entity\Language $language) {
+                    return $language->getName();
+                })
                 ->toArray();
             $languagesAvailableLocale = from($languagesAvailable)
-                ->select(function (Entity\Language $language) { return $language->getLocale(); })
+                ->select(function (Entity\Language $language) {
+                    return $language->getLocale();
+                })
                 ->toArray();
             $requestLocale = $request->getPreferredLanguage($languagesAvailableLocale);
             $session = new Security\Session($this->sessionName, $requestLocale, $request, $this->sessionTimeout);
@@ -100,15 +107,13 @@ class Framework implements HttpKernelInterface
             $translator->setFallbackLocales(array('en_US'));
 
             if ($actionOptions->twig) {
+                /** @var TwigLoader $twigLoader */
                 $twigLoader = new $this->twigLoaderClass($request, $this->twigEnvironment, $this->em, $this->router, $this->annotationReader, $translator, $languagesAvailable, $locale);
                 $controllerObject = $reflectionClass->newInstance($this->em, $security, $this->router, $translator, $twigLoader->getTwig(), $twigLoader->GetFormFactory());
 
                 /** @var Response $response */
                 $response = $controllerObject->{$actionName}($arguments[0]);
                 //$response->headers->set('X-Debug-Token', true);
-
-                if ($actionOptions->twig && !$request->isXmlHttpRequest() && $twigLoader->GetDebugRenderer() !== null)
-                    $response->setContent(str_replace('</body>', $twigLoader->GetDebugRenderer()->render() . '</body>', $response->getContent()));
 
                 return $response;
             } else {
@@ -143,22 +148,24 @@ class Framework implements HttpKernelInterface
         }
     }
 
-    protected function checkRequest($reflectionMethod, $controller, $action, Request $request) {
+    protected function checkRequest($reflectionMethod, $controller, $action, Request $request)
+    {
         /** @var Annotation\ControllerActionOptions $actionOptions */
         $actionOptions = $this->annotationReader->getMethodAnnotation($reflectionMethod, 'Pis\Framework\Annotation\ControllerActionOptions');
         if ($actionOptions === null)
             throw new Exception\AnnotationMissingException($controller . ' ' . $action);
         if (($request->getMethod() == "HEAD" && in_array("GET", $actionOptions->method)) ||
             in_array($request->getMethod(), $actionOptions->method)
-        ) { /* method ok */ }
-        else
+        ) { /* method ok */
+        } else
             throw new MethodNotAllowedException($actionOptions->method, 'Got ' . $request->getMethod() . ' expected ' . implode(',', $actionOptions->method));
         if ($request->isXmlHttpRequest() != $actionOptions->xhr)
             throw new Exception\WrongRequestTypeException('Got ' . $request->isXmlHttpRequest() . ' expected ' . $actionOptions->xhr);
         return $actionOptions;
     }
 
-    protected function hasAccess(Security\Security $security, $reflectionClass, $reflectionMethod) {
+    protected function hasAccess(Security\Security $security, $reflectionClass, $reflectionMethod)
+    {
         $classSecurity = $this->annotationReader->getClassAnnotation($reflectionClass, 'Pis\Framework\Annotation\ControllerActionSecurity');
         $methodSecurity = $this->annotationReader->getMethodAnnotation($reflectionMethod, 'Pis\Framework\Annotation\ControllerActionSecurity');
         /** Annotation\ControllerActionSecurity $actionSecurity */

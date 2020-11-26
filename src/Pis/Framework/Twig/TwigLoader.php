@@ -32,7 +32,7 @@ use Twig\TwigFilter;
 class TwigLoader
 {
 
-    /** @var TraceableTwigEnvironment */
+    /** @var \Twig\Environment */
     protected $twig;
     /** @var Router */
     protected $router;
