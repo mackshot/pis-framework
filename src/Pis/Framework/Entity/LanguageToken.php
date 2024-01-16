@@ -2,6 +2,16 @@
 
 namespace Pis\Framework\Entity;
 
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\UniqueConstraint;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\OneToMany;
+
 /**
  * @Entity(repositoryClass="Pis\Framework\Entity\Repository\LanguageTokenRepository")
  * @Table(name="language_tokens",

@@ -6,12 +6,11 @@ use Pis\Framework\Entity\LanguageTranslation;
 
 class LanguageTranslationRepository extends BaseRepository
 {
-
     public function findAllByLocale($locale)
     {
         $queryBuilder = $this->_em->createQueryBuilder();
         return $queryBuilder->select('t, l, to, d')
-            ->from(LanguageTranslation::EntityName(), 't')
+            ->from(LanguageTranslation::class, 't')
             ->join('t.language', 'l')
             ->join('t.token', 'to')
             ->join('to.domain', 'd')

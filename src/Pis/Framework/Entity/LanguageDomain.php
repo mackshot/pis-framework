@@ -2,6 +2,11 @@
 
 namespace Pis\Framework\Entity;
 
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\Column;
+
 /**
  * @Entity(repositoryClass="Pis\Framework\Entity\Repository\LanguageDomainRepository")
  * @Table(name="language_domains")

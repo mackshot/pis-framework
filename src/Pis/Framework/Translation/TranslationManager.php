@@ -27,8 +27,8 @@ class TranslationManager implements LoaderInterface
      */
     public function __construct(EntityManager $em) {
         $this->em = $em;
-        $this->translationRepository = $em->getRepository(Entity\LanguageTranslation::EntityName());
-        $this->languageRepository = $this->em->getRepository(Entity\Language::EntityName());
+        $this->translationRepository = $em->getRepository(Entity\LanguageTranslation::class);
+        $this->languageRepository = $this->em->getRepository(Entity\Language::class);
         $this->languages = $this->languageRepository->findAll();
     }
 

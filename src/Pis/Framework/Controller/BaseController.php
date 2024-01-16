@@ -6,7 +6,6 @@ use Doctrine\ORM\EntityManager;
 use Pis\Framework\Controller\BreadCrumb;
 use Pis\Framework\Exception\ControllerActionNameFormatException;
 use Pis\Framework\Exception\TemplateNotFoundException;
-use Pis\Framework\Helper\GetClassName;
 use Pis\Framework\Router\Router;
 use Pis\Framework\Security\Security;
 use Pis\Framework\Translation\Translator;
@@ -14,9 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class BaseController
 {
-
-    use GetClassName;
-
     static function createInstanceWithoutConstructor($class){
         $reflector = new \ReflectionClass($class);
         $properties = $reflector->getProperties();

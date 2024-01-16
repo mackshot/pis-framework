@@ -9,7 +9,7 @@ class LanguageRouter extends BaseRouter
 {
 
     public function __construct() {
-        parent::__construct(LanguageController::GetClassName());
+        parent::__construct(LanguageController::class);
 
         $this->AddRoute($this->Index());
         $this->AddRoute($this->Add());

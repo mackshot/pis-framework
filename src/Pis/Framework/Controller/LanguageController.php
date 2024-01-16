@@ -29,15 +29,15 @@ class LanguageController extends BaseController
     public function IndexAction(Request $request)
     {
         /** @var Entity\Repository\LanguageRepository $languageRepository */
-        $languageRepository = $this->em->getRepository(Entity\Language::EntityName());
+        $languageRepository = $this->em->getRepository(Entity\Language::class);
         /** @var Entity\Language[] $languages */
         $languages = $languageRepository->findAll();
 
         $query = "SELECT to, d, t, l ";
-        $query .= "FROM " . Entity\LanguageToken::EntityName() . " AS to ";
-        $query .= "LEFT JOIN " . Entity\LanguageDomain::EntityName() . " AS d WITH (to.domain = d.id) ";
-        $query .= "LEFT OUTER JOIN " . Entity\LanguageTranslation::EntityName() . " AS t WITH (to.id = t.token) ";
-        $query .= "LEFT JOIN " . Entity\Language::EntityName() . " AS l WITH (t.language = l.id) ";
+        $query .= "FROM " . Entity\LanguageToken::class . " AS to ";
+        $query .= "LEFT JOIN " . Entity\LanguageDomain::class . " AS d WITH (to.domain = d.id) ";
+        $query .= "LEFT OUTER JOIN " . Entity\LanguageTranslation::class . " AS t WITH (to.id = t.token) ";
+        $query .= "LEFT JOIN " . Entity\Language::class . " AS l WITH (t.language = l.id) ";
         $query = $this->em->createQuery($query);
         $result = $query->getResult();
         $tokens = array();
@@ -72,7 +72,7 @@ class LanguageController extends BaseController
             $form->handleRequest();
             $data = $form->getData();
             /** @var Entity\Repository\LanguageRepository $languageRepository */
-            $languageRepository = $this->em->getRepository(Entity\Language::EntityName());
+            $languageRepository = $this->em->getRepository(Entity\Language::class);
             $language = $languageRepository->findOneBy(array('locale' => $data['locale']));
             if ($language !== null)
                 $form->get('locale')->addError(new FormError('notUniqueValue'));
@@ -85,11 +85,11 @@ class LanguageController extends BaseController
                 $this->em->flush();
 
                 $laRole = new Entity\Role();
-                $laRole ->setId('la/' . $language->getId());
+                $laRole->setId('la/' . $language->getId());
                 $this->em->persist($laRole);
 
                 /** @var Entity\Repository\RoleRepository $roleRepository */
-                $roleRepository = $this->em->getRepository(Entity\Role::EntityName());
+                $roleRepository = $this->em->getRepository(Entity\Role::class);
                 $lacRole = $roleRepository->find('lac');
 
                 $subRole = new Entity\RoleSubrole();
@@ -111,13 +111,13 @@ class LanguageController extends BaseController
     /**
      * @Options(method={"GET", "POST"})
      * @param Request $request
-     * @throws ResourceNotFoundException
      * @return Response
+     * @throws ResourceNotFoundException
      */
     public function EditAction(Request $request)
     {
         /** @var Entity\Repository\LanguageRepository $languageRepository */
-        $languageRepository = $this->em->getRepository(Entity\Language::EntityName());
+        $languageRepository = $this->em->getRepository(Entity\Language::class);
         /** @var Entity\Language $language */
         $language = $languageRepository->find($request->get('id'));
         if ($language === null)
@@ -152,8 +152,8 @@ class LanguageController extends BaseController
     /**
      * @Options(method={"GET"})
      * @param Request $request
-     * @throws ResourceNotFoundException
      * @return Response
+     * @throws ResourceNotFoundException
      */
     public function TranslateAction(Request $request)
     {
@@ -163,23 +163,30 @@ class LanguageController extends BaseController
         $mode = $request->query->get('mode');
 
         /** @var Entity\Repository\LanguageRepository $languageRepository */
-        $languageRepository = $this->em->getRepository(Entity\Language::EntityName());
+        $languageRepository = $this->em->getRepository(Entity\Language::class);
         /** @var Entity\Language[] $languages */
         $languages = $languageRepository->findAll();
 
         /** @var Entity\Repository\LanguageDomainRepository $languageRepository */
-        $languageDomainRepository = $this->em->getRepository(Entity\LanguageDomain::EntityName());
+        $languageDomainRepository = $this->em->getRepository(Entity\LanguageDomain::class);
         /** @var Entity\LanguageDomain[] $languageDomains */
         $languageDomains = $languageDomainRepository->findAll();
 
-        $language = from($languages)->where(function (Entity\Language $l) use ($to) { return $l->getId() == $to; })->first();
-        $otherLanguage = from($languages)->where(function (Entity\Language $l) use ($from) { return $l->getId() == $from; })->first();
+        $filterLanguage = function ($_languages, $_language) {
+            foreach ($_languages as $_l) {
+                if ($_l->getId() == $_language)
+                    return $_l;
+            }
+        };
+
+        $language = $filterLanguage($languages, $to);
+        $otherLanguage = $filterLanguage($languages, $from);
 
         $query = "SELECT to, d, t1, t2 ";
-        $query .= "FROM " . Entity\LanguageToken::EntityName() . " AS to ";
-        $query .= "LEFT JOIN " . Entity\LanguageDomain::EntityName() . " AS d WITH (to.domain = d.id) ";
-        $query .= "LEFT OUTER JOIN " . Entity\LanguageTranslation::EntityName() . " AS t1 WITH (to.id = t1.token AND t1.language = :l1) ";
-        $query .= "LEFT OUTER JOIN " . Entity\LanguageTranslation::EntityName() . " AS t2 WITH (to.id = t2.token AND t2.language = :l2) ";
+        $query .= "FROM " . Entity\LanguageToken::class . " AS to ";
+        $query .= "LEFT JOIN " . Entity\LanguageDomain::class . " AS d WITH (to.domain = d.id) ";
+        $query .= "LEFT OUTER JOIN " . Entity\LanguageTranslation::class . " AS t1 WITH (to.id = t1.token AND t1.language = :l1) ";
+        $query .= "LEFT OUTER JOIN " . Entity\LanguageTranslation::class . " AS t2 WITH (to.id = t2.token AND t2.language = :l2) ";
         $query .= "WHERE 1 = 1 ";
         if (strlen($domain))
             $query .= "AND d.id = :domain ";
@@ -223,15 +230,15 @@ class LanguageController extends BaseController
     /**
      * @Options(method={"POST"}, xhr=true)
      * @param Request $request
-     * @throws ResourceNotFoundException
      * @return Response
+     * @throws ResourceNotFoundException
      */
     public function GetTranslationAction(Request $request)
     {
         $token = $request->get('token');
         $lang = $request->get('lang');
         /** @var Entity\Repository\LanguageTranslationRepository $languageTranslationRepository */
-        $languageTranslationRepository = $this->em->getRepository(Entity\LanguageTranslation::EntityName());
+        $languageTranslationRepository = $this->em->getRepository(Entity\LanguageTranslation::class);
         /** @var Entity\LanguageTranslation $translation */
         $translation = $languageTranslationRepository->findOneBy(array('language' => $lang, 'token' => $token));
         if ($translation === null)
@@ -243,8 +250,8 @@ class LanguageController extends BaseController
     /**
      * @Options(method={"POST"}, xhr=true)
      * @param Request $request
-     * @throws ResourceNotFoundException
      * @return Response
+     * @throws ResourceNotFoundException
      */
     public function SetTranslationAction(Request $request)
     {
@@ -255,17 +262,17 @@ class LanguageController extends BaseController
         if (strlen($text) == 0) return $this->responsePlain("");
 
         /** @var Entity\Repository\LanguageTranslationRepository $languageTranslationRepository */
-        $languageTranslationRepository = $this->em->getRepository(Entity\LanguageTranslation::EntityName());
+        $languageTranslationRepository = $this->em->getRepository(Entity\LanguageTranslation::class);
         /** @var Entity\LanguageTranslation $translation */
         $translation = $languageTranslationRepository->findOneBy(array('language' => $language, 'token' => $token));
 
         /** @var Entity\Repository\LanguageRepository $languageRepository */
-        $languageRepository = $this->em->getRepository(Entity\Language::EntityName());
+        $languageRepository = $this->em->getRepository(Entity\Language::class);
         /** @var Entity\Language $language */
         $language = $languageRepository->find($language);
 
         /** @var Entity\Repository\LanguageTokenRepository $languageTokenRepository */
-        $languageTokenRepository = $this->em->getRepository(Entity\LanguageToken::EntityName());
+        $languageTokenRepository = $this->em->getRepository(Entity\LanguageToken::class);
         /** @var Entity\LanguageToken $token */
         $token = $languageTokenRepository->find($token);
 
@@ -291,11 +298,11 @@ class LanguageController extends BaseController
             $form->handleRequest();
             $data = $form->getData();
             /** @var Entity\Repository\LanguageTokenRepository $languageTokenRepository */
-            $languageTokenRepository = $this->em->getRepository(Entity\LanguageToken::EntityName());
+            $languageTokenRepository = $this->em->getRepository(Entity\LanguageToken::class);
             /** @var Entity\LanguageToken $token */
             $token = $languageTokenRepository->findOneBy(array('token' => $data['token'], 'domain' => $data['domain']));
             /** @var Entity\Repository\LanguageDomainRepository $languageRepository */
-            $languageDomainRepository = $this->em->getRepository(Entity\LanguageDomain::EntityName());
+            $languageDomainRepository = $this->em->getRepository(Entity\LanguageDomain::class);
             /** @var Entity\LanguageDomain[] $ldomain */
             $domain = $languageDomainRepository->find($data['domain']);
             if ($token !== null)
@@ -314,7 +321,8 @@ class LanguageController extends BaseController
         );
     }
 
-    private function languageForm($route) {
+    private function languageForm($route)
+    {
         return $this->formFactory->createNamedBuilder('languageForm')
             ->setMethod('POST')
             ->setAction($route)
@@ -344,13 +352,14 @@ class LanguageController extends BaseController
             ->getForm();
     }
 
-    private function tokenForm($route) {
+    private function tokenForm($route)
+    {
         /** @var Entity\Repository\LanguageDomainRepository $languageRepository */
-        $languageDomainRepository = $this->em->getRepository(Entity\LanguageDomain::EntityName());
+        $languageDomainRepository = $this->em->getRepository(Entity\LanguageDomain::class);
         /** @var Entity\LanguageDomain[] $languageDomains */
         $languageDomains = $languageDomainRepository->findAll();
         $domains = array();
-        foreach($languageDomains as $domain)
+        foreach ($languageDomains as $domain)
             $domains[$domain->getId()] = $domain->getId();
         return $this->formFactory->createNamedBuilder('tokenForm')
             ->setMethod('POST')

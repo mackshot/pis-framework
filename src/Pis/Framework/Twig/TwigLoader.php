@@ -61,10 +61,10 @@ class TwigLoader
 
         BaseFunction::$translator = $translator;
         $functionClasses = array(
-            ElementarFunction::GetClassName(),
-            BreadCrumbFunction::GetClassName(),
-            CodeFormatterFunction::GetClassName(),
-            EmailEncodeFunction::GetClassName()
+            ElementarFunction::class,
+            BreadCrumbFunction::class,
+            CodeFormatterFunction::class,
+            EmailEncodeFunction::class
         );
         $functionClasses = array_merge($functionClasses, $additionalFunctionClasses);
 

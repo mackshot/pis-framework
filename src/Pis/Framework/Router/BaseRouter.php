@@ -26,7 +26,7 @@ class BaseRouter
         $callers = debug_backtrace();
         $controllerName = array_slice(explode('\\', $callers[1]['class']), -1);
         $controllerName = preg_replace('/Router$/', '', $controllerName[0]);
-        $actionName = preg_replace('/Action$/', '', from($route->getDefault('_controller'))->elementAt(1));
+        $actionName = preg_replace('/Action$/', '', $route->getDefault('_controller')[1]);
         $this->routeCollection->add($controllerName . '::' . $actionName, $route);
     }
 
@@ -42,7 +42,7 @@ class BaseRouter
                 $callers = debug_backtrace();
                 $controllerName = array_slice(explode('\\', $callers[1]['class']), -1);
                 $controllerName = preg_replace('/Router$/', '', $controllerName[0]);
-                $actionName = preg_replace('/Action$/', '', from($route->getDefault('_controller'))->elementAt(1));
+                $actionName = preg_replace('/Action$/', '', $route->getDefault('_controller')[1]);
             };
             $postfix = $key == null ? '' : '::' . $key;
             $this->routeCollection->add($controllerName . '::' . $actionName . $key, $route);

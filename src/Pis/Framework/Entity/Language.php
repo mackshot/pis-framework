@@ -2,6 +2,12 @@
 
 namespace Pis\Framework\Entity;
 
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\GeneratedValue;
+
 /**
  * @Entity(repositoryClass="Pis\Framework\Entity\Repository\LanguageRepository")
  * @Table(name="languages")

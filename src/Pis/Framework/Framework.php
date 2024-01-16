@@ -78,19 +78,22 @@ class Framework implements HttpKernelInterface
             new Annotation\ControllerActionSecurity(); //autoload
 
             $translationManager = new Translation\TranslationManager($this->em);
-            $languagesAvailable = from($translationManager->getLanguages())
-                ->where(function (Entity\Language $language) {
-                    return $language->getAvailable() == 1;
-                })
-                ->orderBy(function (Entity\Language $language) {
-                    return $language->getName();
-                })
-                ->toArray();
-            $languagesAvailableLocale = from($languagesAvailable)
-                ->select(function (Entity\Language $language) {
-                    return $language->getLocale();
-                })
-                ->toArray();
+
+            $languagesAvailable = [];
+            foreach ($translationManager->getLanguages() as $l) {
+                if ($l->getAvailable() != 1)
+                    continue;
+                $languagesAvailable[] = $l;
+            }
+            usort($languagesAvailable, function ($a, $b) {
+                return strcmp($a->getName(), $b->getName());
+            });
+
+            $languagesAvailableLocale = [];
+            foreach ($languagesAvailable as $l) {
+                $languagesAvailableLocale[] = $l->getLocale();
+            }
+
             $requestLocale = $request->getPreferredLanguage($languagesAvailableLocale);
             $session = new Security\Session($this->sessionName, $requestLocale, $request, $this->sessionTimeout);
 
