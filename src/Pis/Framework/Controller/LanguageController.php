@@ -348,7 +348,7 @@ class LanguageController extends BaseController
             ->add('available', TextType::class, array(
                 'label' => 'Available',
                 'required' => false,
-                'value' => 1
+                'data' => 1
             ))
             ->add('add', SubmitType::class, array(
                 'label' => 'Save',
