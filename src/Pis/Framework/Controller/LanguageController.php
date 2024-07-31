@@ -8,6 +8,10 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+
 use Pis\Framework\Annotation\ControllerActionOptions as Options;
 use Pis\Framework\Annotation\ControllerActionSecurity as Security;
 
@@ -326,7 +330,7 @@ class LanguageController extends BaseController
         return $this->formFactory->createNamedBuilder('languageForm')
             ->setMethod('POST')
             ->setAction($route)
-            ->add('locale', 'text', array(
+            ->add('locale', TextType::class, array(
                 'required' => true,
                 'label' => 'Locale',
                 'constraints' => array(
@@ -334,19 +338,19 @@ class LanguageController extends BaseController
                     new Length(array('min' => 5, 'max' => 5)),
                 ),
             ))
-            ->add('name', 'text', array(
+            ->add('name', TextType::class, array(
                 'required' => true,
                 'label' => 'Name',
                 'constraints' => array(
                     new NotBlank()
                 ),
             ))
-            ->add('available', 'checkbox', array(
+            ->add('available', TextType::class, array(
                 'label' => 'Available',
                 'required' => false,
                 'value' => 1
             ))
-            ->add('add', 'submit', array(
+            ->add('add', SubmitType::class, array(
                 'label' => 'Save',
             ))
             ->getForm();
@@ -364,19 +368,19 @@ class LanguageController extends BaseController
         return $this->formFactory->createNamedBuilder('tokenForm')
             ->setMethod('POST')
             ->setAction($route)
-            ->add('domain', 'choice', array(
+            ->add('domain', ChoiceType::class, array(
                 'choices' => $domains,
                 'required' => true,
                 'label' => 'Domain'
             ))
-            ->add('token', 'text', array(
+            ->add('token', TextType::class, array(
                 'required' => true,
                 'label' => 'Token',
                 'constraints' => array(
                     new NotBlank()
                 ),
             ))
-            ->add('add', 'submit', array(
+            ->add('add', SubmitType::class, array(
                 'label' => 'Save',
             ))
             ->getForm();
